@@ -1,12 +1,13 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-import jsonparse
-import nameconfig
-
 import tkinter
 from tkinter import ttk
 
+import jsonparse
+import nameconfig
+
+#Create GUI & Populate
 class Window(ttk.Frame):
     
     def __init__(self, master=None):
@@ -20,21 +21,21 @@ class Window(ttk.Frame):
         self.master.minsize(width=500, height=500)
         self.pack(fill='both', expand=1, padx=10, pady=10)
         
+        entry_array = []
         x = 0
         items = jsonparse.getParts()
         for parts in items:
             l1 = ttk.Label(self, text=parts["Description"])
             e1 = ttk.Entry(self)
-            
+            entry_array.append(e1)
             l1.grid(row=x, column=0, padx=2, pady=2)
             e1.grid(row=x, column=1, padx=2, pady=2)
             x = x + 1
-            print(x)
             
-        submitButton = ttk.Button(self, text="Enter Order", command= lambda:runBrowser(items))
+        submitButton = ttk.Button(self, text="Enter Order", command= lambda:runBrowser(items, entry_array))
         submitButton.grid(row=x, columnspan=2, padx=2, pady=2)
         
-def runBrowser(items):
+def runBrowser(items,entry_array):
     # Open & Maximize Chrome
     driver = webdriver.Chrome()
     driver.maximize_window()
@@ -50,9 +51,10 @@ def runBrowser(items):
 
     #Fill out form & submit
     x = 0
+    
     for item in items:
         driver.find_element_by_id("txtItemID" + str(x)).send_keys(item["BANum"])
-        driver.find_element_by_id("txtQuantity" + str(x)).send_keys("6")
+        driver.find_element_by_id("txtQuantity" + str(x)).send_keys(entry_array[x].get())
         x = x + 1
     driver.find_element_by_id("ButtonQOPAddToCart").click()
         
