@@ -14,6 +14,36 @@
             "Description": "LaMotte Test Kit",
             "SKU": "325P210832",
             "BANum": "PM41NJ"
+        },        
+        {
+            "Description": "No Lifeguard On Duty Sign",
+            "SKU": "310P210360",
+            "BANum": "BHS1"
+        },
+        {
+            "Description": "Pool Capacity & Hours Sign",
+            "SKU": "310P210361",
+            "BANum": "BHS2"
+        },
+        {
+            "Description": "NY State Sign - Caution Spa Users",
+            "SKU": "310P210362",
+            "BANum": "BHS3"
+        },        
+        {
+            "Description": "No Swimming With Infection Sign",
+            "SKU": "310P210363",
+            "BANum": "BHS4"
+        },
+        {
+            "Description": "Urinating Prohibited Sign",
+            "SKU": "310P210364",
+            "BANum": "BHS5"
+        },
+        {
+            "Description": "No Diving Sign - 12\" x 18\"",
+            "SKU": "310P210791",
+            "BANum": "PM40344"
         }
     ]
 }
