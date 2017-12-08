@@ -3,6 +3,7 @@ from selenium.webdriver.common.keys import Keys
 
 import tkinter
 from tkinter import ttk
+from tkinter import messagebox
 
 import jsonparse
 import nameconfig
@@ -21,21 +22,58 @@ class Window(ttk.Frame):
         self.master.minsize(width=500, height=500)
         self.pack(fill='both', expand=1, padx=10, pady=10)
         
+        validate_cmd = (self.register(checkEntry), '%P')
+        
         entry_array = []
         x = 0
         items = jsonparse.getParts()
         for parts in items:
             l1 = ttk.Label(self, text=parts["Description"])
-            e1 = ttk.Entry(self)
+            e1 = ttk.Entry(self, validate='key', validatecommand=validate_cmd, invalidcommand= lambda: messagebox.showinfo("Invalid Entry", "Please enter a valid integer"))
             entry_array.append(e1)
             l1.grid(row=x, column=0, padx=2, pady=2)
             e1.grid(row=x, column=1, padx=2, pady=2)
             x = x + 1
-            
-        submitButton = ttk.Button(self, text="Enter Order", command= lambda:runBrowser(items, entry_array))
+        submitButton = ttk.Button(self, text="Enter Order", command= lambda:filterArray(items, entry_array))
         submitButton.grid(row=x, columnspan=2, padx=2, pady=2)
         
-def runBrowser(items,entry_array):
+        def alert_integer(self):
+            ttk.messagebox.showinfo("Invalid Entry", "Please enter a valid integer")
+    
+def checkEntry(textbox):
+    try:
+        int(textbox)
+        print("true")
+        return True
+    except ValueError:
+        print("false")
+        return False
+        
+""""
+Function: Filter Array
+    ARGS:
+        items: complete listing of items on given page, from jsonparse
+        entry_array: all of the textboxes on the page
+
+    Checks to make sure there is an entry in the textbox:
+        textbox empty: do nothing with the item
+        textbox has quantity: append to selected_items array as a tuple of the item(0) and its quantity(1)
+
+    Program then passes selected_items to runBrowser to enter onto webpage
+"""
+
+def filterArray(items, entry_array):
+    selected_items = []
+    count = 0
+    for item in items:
+        quantity = entry_array[count].get()
+        if quantity != "":
+            selected_items.append((item, quantity))
+        count = count + 1
+    runBrowser(selected_items)
+        
+def runBrowser(selected_items):
+    
     # Open & Maximize Chrome
     driver = webdriver.Chrome()
     driver.maximize_window()
@@ -47,21 +85,21 @@ def runBrowser(items,entry_array):
     driver.find_element_by_id("SubmitLogon").click()
 
     #Go to Quick Order Pad URL
-    driver.get("http://www.bel-aqua.com/default.aspx?Page=Quick%20OrderPad")
+    #driver.get("http://www.bel-aqua.com/default.aspx?Page=Quick%20OrderPad")
+    
 
     #Fill out form & submit
     item_count = 0
     entered_count = 0
     
-    for item in items:
-        driver.find_element_by_id("txtItemID" + str(entered_count)).send_keys(item["BANum"])
-        driver.find_element_by_id("txtQuantity" + str(entered_count)).send_keys(entry_array[item_count].get())
+    for item in selected_items:
+        driver.find_element_by_id("txtItemID" + str(entered_count)).send_keys(item[0]["BANum"])
+        driver.find_element_by_id("txtQuantity" + str(entered_count)).send_keys(item[1])
         item_count = item_count + 1
         entered_count = entered_count + 1
         if entered_count % 5 == 0:
             entered_count = 0
             driver.find_element_by_id("ButtonQOPAddToCart").click()
-        
     driver.find_element_by_id("ButtonQOPAddToCart").click()
         
 
@@ -71,5 +109,4 @@ root = tkinter.Tk()
 app = Window(root)
 
 root.mainloop()
-
 
