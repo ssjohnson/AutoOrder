@@ -50,12 +50,18 @@ def runBrowser(items,entry_array):
     driver.get("http://www.bel-aqua.com/default.aspx?Page=Quick%20OrderPad")
 
     #Fill out form & submit
-    x = 0
+    item_count = 0
+    entered_count = 0
     
     for item in items:
-        driver.find_element_by_id("txtItemID" + str(x)).send_keys(item["BANum"])
-        driver.find_element_by_id("txtQuantity" + str(x)).send_keys(entry_array[x].get())
-        x = x + 1
+        driver.find_element_by_id("txtItemID" + str(entered_count)).send_keys(item["BANum"])
+        driver.find_element_by_id("txtQuantity" + str(entered_count)).send_keys(entry_array[item_count].get())
+        item_count = item_count + 1
+        entered_count = entered_count + 1
+        if entered_count % 5 == 0:
+            entered_count = 0
+            driver.find_element_by_id("ButtonQOPAddToCart").click()
+        
     driver.find_element_by_id("ButtonQOPAddToCart").click()
         
 
