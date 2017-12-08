@@ -37,20 +37,30 @@ class Window(ttk.Frame):
         submitButton = ttk.Button(self, text="Enter Order", command= lambda:filterArray(items, entry_array))
         submitButton.grid(row=x, columnspan=2, padx=2, pady=2)
         
-        def alert_integer(self):
-            ttk.messagebox.showinfo("Invalid Entry", "Please enter a valid integer")
-    
-def checkEntry(textbox):
+""""
+Function checkEntry
+    ARGS:
+        text: the contents of the textbox we are vaildating
+        
+    Returns: 
+        true if it is an integer
+        false if it is not an integer
+""""
+        
+def checkEntry(text):
     try:
-        int(textbox)
+        int(text)
         print("true")
         return True
     except ValueError:
         print("false")
         return False
-        
+    
+
+
+
 """"
-Function: Filter Array
+Function: filterArray
     ARGS:
         items: complete listing of items on given page, from jsonparse
         entry_array: all of the textboxes on the page
@@ -71,7 +81,22 @@ def filterArray(items, entry_array):
             selected_items.append((item, quantity))
         count = count + 1
     runBrowser(selected_items)
-        
+
+
+
+""""
+Function: runBrowser
+    Args: 
+        selected_items: array of tuples (json element, quantity ordered)
+    
+    Opens & Maximizes Chrome
+    Opens "bel-aqua.com"
+    Logs in using info from separate log in info file (nameconfig.py)
+    Fills out quick order pad using info from tuples
+        quick order pad only allows 5 items at a time, loop keeps counter, submits with 5 entries, then starts again
+    Leaves user to validate entries & checkout
+""""
+
 def runBrowser(selected_items):
     
     # Open & Maximize Chrome
@@ -104,6 +129,11 @@ def runBrowser(selected_items):
         
 
         
+        
+"""
+Opens window & begins running loop
+"""
+
 root = tkinter.Tk()
 
 app = Window(root)
