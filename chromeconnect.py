@@ -33,25 +33,28 @@ class AutoOrder(tkinter.Tk):
         frame.tkraise()
 
         
+        
 class PartsPage(tkinter.Frame): 
     
     def __init__(self, parent, controller):
         tkinter.Frame.__init__(self, parent)
         
-        validate_cmd = (self.register(checkEntry), '%P')
+        validate_cmd = (self.register(checkEntry), '%d', '%P')
         
         entry_array = []
         x = 0
         items = jsonparse.getParts()
         for parts in items:
-            l1 = ttk.Label(self, text=parts["Description"])
-            e1 = ttk.Entry(self, validate='key', validatecommand=validate_cmd, invalidcommand= lambda: messagebox.showinfo("Invalid Entry", "Please enter a valid integer"))
-            entry_array.append(e1)
-            l1.grid(row=x, column=0, padx=2, pady=2)
-            e1.grid(row=x, column=1, padx=2, pady=2)
+            partName = ttk.Label(self, text=parts["Description"])
+            entryBox = ttk.Entry(self, validate='key', validatecommand=validate_cmd, invalidcommand= 
+                                 lambda: messagebox.showinfo("Invalid Entry", "Please enter a valid integer"))
+            entry_array.append(entryBox)
+            partName.grid(row=x, column=0, padx=2, pady=2)
+            entryBox.grid(row=x, column=1, padx=2, pady=2)
             x = x + 1
         submitButton = ttk.Button(self, text="Enter Order", command= lambda: filterArray(items, entry_array))
         submitButton.grid(row=x, columnspan=2, padx=2, pady=2)
+        
         
         
 class OrderPage(tkinter.Frame):
@@ -65,6 +68,8 @@ class OrderPage(tkinter.Frame):
        
         
         
+        
+        
 """
 Function checkEntry
     ARGS:
@@ -75,18 +80,16 @@ Function checkEntry
         false if it is not an integer
 """
         
-def checkEntry(text):
-    try:
-        int(text)
-        print("true")
-        return True
-    except ValueError:
-        print("false")
-        return False
-
-
-    
-    
+def checkEntry(action, text):
+    if(action == '1'):
+        try:
+            int(text)
+            print("true")
+            return True
+        except ValueError:
+            print("false")
+            return False
+    return True
     
 """
 Function: filterArray
@@ -113,6 +116,7 @@ def filterArray(items, entry_array):
 
     
     
+    
 """
 Function: runBrowser
     Args: 
@@ -131,7 +135,7 @@ def runBrowser(selected_items):
     # Open & Maximize Chrome
     driver = webdriver.Chrome()
     driver.maximize_window()
-    driver.get("http://www.bel-aqua.com")
+    driver.get("https://www.bel-aqua.com")
 
     # Login into BA.com
     driver.find_element_by_id("txtEmail").send_keys(nameconfig.username)
@@ -158,6 +162,7 @@ def runBrowser(selected_items):
     app.show_frame(OrderPage)
         
 
+        
         
         
         
