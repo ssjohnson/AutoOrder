@@ -8,19 +8,35 @@ from tkinter import messagebox
 import jsonparse
 import nameconfig
 
-#Create GUI & Populate
-class Window(ttk.Frame):
+class AutoOrder(tkinter.Tk):
     
-    def __init__(self, master=None):
-        ttk.Frame.__init__(self, master)
-        self.master = master
-        self.init_window()
+    def __init__(self, *args, **kwargs):
+        tkinter.Tk.__init__(self,*args,**kwargs)
+        tkinter.Tk.wm_title(self, "AutoOrder")
         
-    #Create & populate GUI
-    def init_window(self):
-        self.master.title("Auto Order")
-        self.master.minsize(width=500, height=500)
-        self.pack(fill='both', expand=1, padx=10, pady=10)
+        container = tkinter.Frame(self)
+        container.pack(side="top", fill="both", expand = True)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+        
+        self.frames = {}
+        
+        for F in (PartsPage, OrderPage):
+            frame = F(container, self)
+            self.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+        
+        self.show_frame(PartsPage)
+        
+    def show_frame(self, container):
+        frame = self.frames[container]
+        frame.tkraise()
+
+        
+class PartsPage(tkinter.Frame): 
+    
+    def __init__(self, parent, controller):
+        tkinter.Frame.__init__(self, parent)
         
         validate_cmd = (self.register(checkEntry), '%P')
         
@@ -34,10 +50,22 @@ class Window(ttk.Frame):
             l1.grid(row=x, column=0, padx=2, pady=2)
             e1.grid(row=x, column=1, padx=2, pady=2)
             x = x + 1
-        submitButton = ttk.Button(self, text="Enter Order", command= lambda:filterArray(items, entry_array))
+        submitButton = ttk.Button(self, text="Enter Order", command= lambda: filterArray(items, entry_array))
         submitButton.grid(row=x, columnspan=2, padx=2, pady=2)
         
-""""
+        
+class OrderPage(tkinter.Frame):
+    
+    def __init__(self, parent, controller):
+        tkinter.Frame.__init__(self, parent)
+        label = ttk.Label(self, text="Thanks, Yo")
+        label.pack(pady=10,padx=10)
+        button = ttk.Button(self, text="new order", command= lambda:controller.show_frame(PartsPage))
+        button.pack()
+       
+        
+        
+"""
 Function checkEntry
     ARGS:
         text: the contents of the textbox we are vaildating
@@ -45,7 +73,7 @@ Function checkEntry
     Returns: 
         true if it is an integer
         false if it is not an integer
-""""
+"""
         
 def checkEntry(text):
     try:
@@ -55,11 +83,12 @@ def checkEntry(text):
     except ValueError:
         print("false")
         return False
+
+
     
-
-
-
-""""
+    
+    
+"""
 Function: filterArray
     ARGS:
         items: complete listing of items on given page, from jsonparse
@@ -82,9 +111,9 @@ def filterArray(items, entry_array):
         count = count + 1
     runBrowser(selected_items)
 
-
-
-""""
+    
+    
+"""
 Function: runBrowser
     Args: 
         selected_items: array of tuples (json element, quantity ordered)
@@ -95,7 +124,7 @@ Function: runBrowser
     Fills out quick order pad using info from tuples
         quick order pad only allows 5 items at a time, loop keeps counter, submits with 5 entries, then starts again
     Leaves user to validate entries & checkout
-""""
+"""
 
 def runBrowser(selected_items):
     
@@ -126,17 +155,15 @@ def runBrowser(selected_items):
             entered_count = 0
             driver.find_element_by_id("ButtonQOPAddToCart").click()
     driver.find_element_by_id("ButtonQOPAddToCart").click()
+    app.show_frame(OrderPage)
         
 
+        
         
         
 """
 Opens window & begins running loop
-"""
-
-root = tkinter.Tk()
-
-app = Window(root)
-
-root.mainloop()
-
+"""    
+        
+app = AutoOrder()
+app.mainloop()
