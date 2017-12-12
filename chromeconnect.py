@@ -95,6 +95,15 @@ class LoginInfoChange(tkinter.Frame):
         
         savebtn = ttk.Button(self, text="Save Info", command= lambda:saveInfo(usernameEntry, passwordEntry))
         savebtn.grid(row=2, columnspan=2, padx=2, pady=2)
+
+"""
+Function saveInfo
+    ARGS:
+        username: Entry object containing the input username from LoginInfoChange page
+        password: Entry object containing the input password from LoginInfoChange page
+    
+    Saves username & pw to config file, shows msg box that it is successful, switches back to parts order page
+"""
         
 def saveInfo(username, password):
     nameconfig.setInfo(username.get(),password.get())
