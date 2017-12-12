@@ -1,8 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+import sys
+
 import tkinter
 from tkinter import ttk
+from tkinter import Menu
 from tkinter import messagebox
 
 import jsonparse
@@ -14,6 +17,15 @@ class AutoOrder(tkinter.Tk):
         tkinter.Tk.__init__(self,*args,**kwargs)
         tkinter.Tk.wm_title(self, "AutoOrder")
         
+        menubar = Menu(self)
+        self.config(menu=menubar)
+        
+        optionsMenu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Options", menu=optionsMenu)
+        optionsMenu.add_command(label="Change Login Info", command=lambda:app.show_frame(LoginInfoChange))
+        optionsMenu.add_command(label="Quit", command=sys.exit)
+        
+        
         container = tkinter.Frame(self)
         container.pack(side="top", fill="both", expand = True)
         container.grid_rowconfigure(0, weight=1)
@@ -21,7 +33,7 @@ class AutoOrder(tkinter.Tk):
         
         self.frames = {}
         
-        for F in (PartsPage, OrderPage):
+        for F in (PartsPage, OrderPage, LoginInfoChange):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -67,6 +79,29 @@ class OrderPage(tkinter.Frame):
         button.pack()
        
         
+class LoginInfoChange(tkinter.Frame):
+    
+    def __init__(self,parent,controller):
+        tkinter.Frame.__init__(self,parent)
+        usernamelabel = ttk.Label(self, text="New Username:")
+        passwordlabel = ttk.Label(self, text = "New Password:")
+        usernameEntry = ttk.Entry(self)
+        passwordEntry = ttk.Entry(self, show='*')
+        
+        usernamelabel.grid(row=0, column=0, padx=2, pady=2)
+        passwordlabel.grid(row=1, column=0, padx=2, pady=2)
+        usernameEntry.grid(row=0, column=1, padx=2, pady=2)
+        passwordEntry.grid(row=1, column=1, padx=2, pady=2)
+        
+        savebtn = ttk.Button(self, text="Save Info", command= lambda:saveInfo(usernameEntry, passwordEntry))
+        savebtn.grid(row=2, columnspan=2, padx=2, pady=2)
+        
+def saveInfo(username, password):
+    nameconfig.setInfo(username.get(),password.get())
+    username.delete(0,'end')
+    password.delete(0,'end')
+    messagebox.showinfo("Save Successful", "Information Saved Successfully")
+    app.show_frame(PartsPage)
         
         
         
@@ -112,6 +147,10 @@ def filterArray(items, entry_array):
         if quantity != "":
             selected_items.append((item, quantity))
         count = count + 1
+    
+    for entry in entry_array:
+        entry.delete(0, 'end')
+    
     runBrowser(selected_items)
 
     
@@ -132,14 +171,14 @@ Function: runBrowser
 
 def runBrowser(selected_items):
     
-    # Open & Maximize Chrome
     driver = webdriver.Chrome()
     driver.maximize_window()
     driver.get("https://www.bel-aqua.com")
 
     # Login into BA.com
-    driver.find_element_by_id("txtEmail").send_keys(nameconfig.username)
-    driver.find_element_by_id("txtPassword").send_keys(nameconfig.password)
+    loginInfo = nameconfig.getInfo()
+    driver.find_element_by_id("txtEmail").send_keys(loginInfo[0])
+    driver.find_element_by_id("txtPassword").send_keys(loginInfo[1])
     driver.find_element_by_id("SubmitLogon").click()
 
     #Go to Quick Order Pad URL
