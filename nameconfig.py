@@ -1,3 +1,5 @@
+import base64
+
 def getInfo():
     f = open("config.txt")
     info = f.readlines()
@@ -12,6 +14,8 @@ def setInfo(username, password):
     f.truncate()
     f.write(username + '\n')
     f.write(password)
+    
+  
 
 
 

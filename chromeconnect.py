@@ -1,6 +1,3 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-
 import sys
 
 import tkinter
@@ -8,6 +5,7 @@ from tkinter import ttk
 from tkinter import Menu
 from tkinter import messagebox
 
+import placeorder
 import jsonparse
 import nameconfig
 
@@ -60,12 +58,14 @@ class PartsPage(tkinter.Frame):
             partName = ttk.Label(self, text=parts["Description"])
             entryBox = ttk.Entry(self, validate='key', validatecommand=validate_cmd, invalidcommand= 
                                  lambda: messagebox.showinfo("Invalid Entry", "Please enter a valid integer"))
+            crmNumber = ttk.Label(self, text=parts["SKU"])
             entry_array.append(entryBox)
             partName.grid(row=x, column=0, padx=2, pady=2)
             entryBox.grid(row=x, column=1, padx=2, pady=2)
+            crmNumber.grid(row=x, column=2, padx=2, pady=2)
             x = x + 1
         submitButton = ttk.Button(self, text="Enter Order", command= lambda: filterArray(items, entry_array))
-        submitButton.grid(row=x, columnspan=2, padx=2, pady=2)
+        submitButton.grid(row=x, columnspan=3, padx=2, pady=2)
         
         
         
@@ -111,9 +111,7 @@ def saveInfo(username, password):
     password.delete(0,'end')
     messagebox.showinfo("Save Successful", "Information Saved Successfully")
     app.show_frame(PartsPage)
-        
-        
-        
+                
 """
 Function checkEntry
     ARGS:
@@ -146,6 +144,7 @@ Function: filterArray
         textbox has quantity: append to selected_items array as a tuple of the item(0) and its quantity(1)
 
     Program then passes selected_items to runBrowser to enter onto webpage
+    After runBrowser completes - show OrderPage
 """
 
 def filterArray(items, entry_array):
@@ -160,59 +159,10 @@ def filterArray(items, entry_array):
     for entry in entry_array:
         entry.delete(0, 'end')
     
-    runBrowser(selected_items)
-
-    
-    
-    
-"""
-Function: runBrowser
-    Args: 
-        selected_items: array of tuples (json element, quantity ordered)
-    
-    Opens & Maximizes Chrome
-    Opens "bel-aqua.com"
-    Logs in using info from separate log in info file (nameconfig.py)
-    Fills out quick order pad using info from tuples
-        quick order pad only allows 5 items at a time, loop keeps counter, submits with 5 entries, then starts again
-    Leaves user to validate entries & checkout
-"""
-
-def runBrowser(selected_items):
-    
-    driver = webdriver.Chrome()
-    driver.maximize_window()
-    driver.get("https://www.bel-aqua.com")
-
-    # Login into BA.com
-    loginInfo = nameconfig.getInfo()
-    driver.find_element_by_id("txtEmail").send_keys(loginInfo[0])
-    driver.find_element_by_id("txtPassword").send_keys(loginInfo[1])
-    driver.find_element_by_id("SubmitLogon").click()
-
-    #Go to Quick Order Pad URL
-    #driver.get("http://www.bel-aqua.com/default.aspx?Page=Quick%20OrderPad")
-    
-
-    #Fill out form & submit
-    item_count = 0
-    entered_count = 0
-    
-    for item in selected_items:
-        driver.find_element_by_id("txtItemID" + str(entered_count)).send_keys(item[0]["BANum"])
-        driver.find_element_by_id("txtQuantity" + str(entered_count)).send_keys(item[1])
-        item_count = item_count + 1
-        entered_count = entered_count + 1
-        if entered_count % 5 == 0:
-            entered_count = 0
-            driver.find_element_by_id("ButtonQOPAddToCart").click()
-    driver.find_element_by_id("ButtonQOPAddToCart").click()
+    placeorder.runBrowser(selected_items)
     app.show_frame(OrderPage)
         
 
-        
-        
-        
         
 """
 Opens window & begins running loop
