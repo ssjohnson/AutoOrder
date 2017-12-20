@@ -1,17 +1,20 @@
 import sys
 
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QMessageBox, QDesktopWidget, QMainWindow)
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtWidgets import (QMainWindow, QAction, QApplication,
+    QLabel, QLineEdit, QWidget, QGridLayout, QMessageBox, QDesktopWidget)
+from PyQt5.QtGui import QIcon
 
-class Example(QWidget):
+class AutoOrder(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.initUI()
-    
-    def initUI(self):
+        self.init_ui()
+
+    def init_ui(self):
+        self.partspage = PartsPage()
+        self.setCentralWidget(self.partspage)
         self.setGeometry(300, 300, 300, 200)
+        self.setWindowTitle('AutoOrder')
         self.center()
-        self.setWindowTitle('Test')
         self.show()
 
     def center(self):
@@ -19,7 +22,7 @@ class Example(QWidget):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
-    
+
     def closeEvent(self, event):
         reply = QMessageBox.question(self, 'Message', "Quit?", QMessageBox.Yes|QMessageBox.No, QMessageBox.No)
 
@@ -28,10 +31,25 @@ class Example(QWidget):
         else:
             event.ignore()
 
+class PartsPage(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+    def init_ui(self):
+        part_label = QLabel("Part")
+        quantity_edit = QLineEdit()
+
+        grid = QGridLayout()
+        grid.setSpacing(10)
+
+        grid.addWidget(part_label, 1, 0)
+        grid.addWidget(quantity_edit, 1, 1)
+
+        self.setLayout(grid)
+        
+
 if __name__ == '__main__':
 
-    app = QApplication(sys.argv)
-
-    ex = Example()
-
-    sys.exit(app.exec_())
+    APP = QApplication(sys.argv)
+    ex = AutoOrder()
+    sys.exit(APP.exec_())
