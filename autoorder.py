@@ -5,14 +5,16 @@ import nameconfig
 
 from PyQt5.QtWidgets import (QMainWindow, QAction, QApplication, QPushButton,
     QLabel, QLineEdit, QWidget, QGridLayout, QMessageBox, QDesktopWidget)
-from PyQt5.QtGui import QIcon, QIntValidator
+from PyQt5.QtGui import QIntValidator
 
 class AutoOrder(QMainWindow):
+    """ Main Program Window """
     def __init__(self):
         super().__init__()
         self.init_ui()
 
     def init_ui(self):
+        """ Create Main Window menus & UI """
         self.partspage = PartsPage()
         self.loginpage = LoginInfoChange()
         self.setCentralWidget(self.partspage)
@@ -30,6 +32,7 @@ class AutoOrder(QMainWindow):
         self.show()
 
     def center(self):
+        """ Center screen """
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
@@ -107,11 +110,32 @@ class LoginInfoChange(QWidget):
 
         self.setLayout(grid)
 
+"""
+Function saveInfo
+    ARGS:
+        username: Entry object containing the input username from LoginInfoChange page
+        password: Entry object containing the input password from LoginInfoChange page
+    
+    Saves username & pw to config file, shows msg box that it is successful, switches back to parts order page
+"""
 def saveInfo(username, password):
     nameconfig.setInfo(username.text(), password.text())
     username.setText("")
     password.setText("")
 
+"""
+Function: filterArray
+    ARGS:
+        items: complete listing of items on given page, from jsonparse
+        entry_array: all of the textboxes on the page
+
+    Checks to make sure there is an entry in the textbox:
+        textbox empty: do nothing with the item
+        textbox has quantity: append to selected_items array as a tuple of the item(0) and its quantity(1)
+
+    Program then passes selected_items to runBrowser to enter onto webpage
+    After runBrowser completes - show OrderPage
+"""
 def filterArray(items, entry_array):
     selected_items = []
     count = 0
@@ -121,10 +145,9 @@ def filterArray(items, entry_array):
         if quantity != "":
             selected_items.append((item, quantity))
         count = count + 1
-    
+
     for entry in entry_array:
         entry.setText("")
-    
     print(selected_items)
     placeorder.runBrowser(selected_items)
 
