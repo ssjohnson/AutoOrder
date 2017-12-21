@@ -1,5 +1,7 @@
 import sys
 import jsonparse
+import placeorder
+import nameconfig
 
 from PyQt5.QtWidgets import (QMainWindow, QAction, QApplication, QPushButton,
     QLabel, QLineEdit, QWidget, QGridLayout, QMessageBox, QDesktopWidget)
@@ -12,7 +14,16 @@ class AutoOrder(QMainWindow):
 
     def init_ui(self):
         self.partspage = PartsPage()
+        self.loginpage = LoginInfoChange()
         self.setCentralWidget(self.partspage)
+
+        change_action = QAction('&Change', self)
+        change_action.triggered.connect(lambda: self.setCentralWidget(self.loginpage))
+
+        menubar = self.menuBar()
+        filemenu = menubar.addMenu("Change Info")
+        filemenu.addAction(change_action)
+
         self.setGeometry(300, 300, 300, 200)
         self.setWindowTitle('AutoOrder')
         self.center()
@@ -68,6 +79,39 @@ class PartsPage(QWidget):
         grid.addWidget(submit_btn, row_counter, 0, 1, 3)
         self.setLayout(grid)
 
+class LoginInfoChange(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+
+    def init_ui(self):
+        grid = QGridLayout()
+        grid.setSpacing(10)
+
+        name_label = QLabel("Email Address:")
+        password_label = QLabel("Password:")
+
+        name_edit = QLineEdit()
+        password_edit = QLineEdit()
+        password_edit.setEchoMode(QLineEdit.Password)
+
+        grid.addWidget(name_label, 0, 0)
+        grid.addWidget(name_edit, 0, 1)
+        grid.addWidget(password_label, 1, 0)
+        grid.addWidget(password_edit, 1, 1)
+
+        save_btn = QPushButton("&Save", self)
+        save_btn.clicked.connect(lambda: saveInfo(name_edit, password_edit))
+
+        grid.addWidget(save_btn, 2, 0, 1, 2)
+
+        self.setLayout(grid)
+
+def saveInfo(username, password):
+    nameconfig.setInfo(username.text(), password.text())
+    username.setText("")
+    password.setText("")
+
 def filterArray(items, entry_array):
     selected_items = []
     count = 0
@@ -82,6 +126,7 @@ def filterArray(items, entry_array):
         entry.setText("")
     
     print(selected_items)
+    placeorder.runBrowser(selected_items)
 
 
 if __name__ == '__main__':
